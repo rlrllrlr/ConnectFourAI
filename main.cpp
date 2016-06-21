@@ -1,7 +1,10 @@
 #include <iostream>
+#include <curses.h>
+#include <unistd.h>
 using namespace std;
 
 char board[7][6];
+WINDOW *win;
 
 void initBoard(void) {
     for(int i = 0; i < 7; ++i) {
@@ -12,11 +15,20 @@ void initBoard(void) {
 }
 
 void printBoard(void) {
-    for(int i = 0; i < 7; ++i) {
-        for(int j = 0; j < 6; ++j) {
-            cout << board[i][j];
+    //vertical bars
+    for(int i = 0; i < 6; ++i) {
+        for(int j = 0; j < 8; ++j) {
+            wmove(win, 2*i+1, 4*j);
+            waddch(win, '|');
         }
-        cout << endl;
+    }
+
+    //horizontal bars
+    for(int j = 1; j < 7; ++j) {
+        for(int i = 0; i < 29; ++i) {
+            wmove(win, 2*j, i);
+            waddch(win, '-');
+        }
     }
 }
 
@@ -60,13 +72,52 @@ char winner(void) {
     }
 }
 
-int main(void) {
-    initBoard();
-    printBoard();
-    dropIntoCol('R', 2);
-    dropIntoCol('B', 2);
-    cout << endl;
-    printBoard();
+void init(void) {
+    initscr();
+    cbreak();
+    noecho();
+    keypad(stdscr, true);
+    curs_set(0);
 
+    int h, w;
+    getmaxyx(stdscr, h, w);
+    win = newwin(h, w, 0, 0);
+    
+    nodelay(stdscr, TRUE);
+}
+
+void runGame(void) {
+    char whose_turn = 'X'; //X turn first
+ 
+    int xpos = 2;
+    while(true) {
+        //input stuff
+        int ch = getch();
+        switch(ch) {
+            case KEY_LEFT:
+                if(xpos > 2) {
+                    xpos -= 4;
+                }
+            break;
+            case KEY_RIGHT:
+                if(xpos < 25) {
+                    xpos += 4;
+                }
+            break;
+        }
+        //output stuff
+        clear();
+        printBoard();
+        mvwaddch(win, 0, xpos, whose_turn);
+        wrefresh(win);
+
+        //wait a bit
+        usleep(10000);
+    }
+}
+
+int main(void) {
+    init();
+    runGame();
     return 0;
 }
