@@ -9,7 +9,7 @@ WINDOW *win;
 void initBoard(void) {
     for(int i = 0; i < 7; ++i) {
         for(int j = 0; j < 6; ++j) {
-            board[i][j] = 'X';
+            board[i][j] = ' ';
         }
     }
 }
@@ -30,11 +30,18 @@ void printBoard(void) {
             waddch(win, '-');
         }
     }
+
+    //board pieces
+    for(int i = 0; i < 7; ++i) {
+        for(int j = 0; j < 6; ++j) {
+            mvwaddch(win, 1+2*j, 2+4*i, board[i][j]);
+        }
+    }
 }
 
 //columns are numbered 0->5 (see board def)
 int dropIntoCol(char player, int col) {
-    if(col < 0 || col > 5) return -1;
+    if(col < 0 || col > 5) return col;
 
     int deepest = -1;
     for(int i = 0; i < 7; ++i) {
@@ -104,6 +111,11 @@ void runGame(void) {
                     xpos += 4;
                 }
             break;
+            case ' ':
+                int foo = dropIntoCol(whose_turn, (xpos-2)/4);
+                cout << foo << endl;
+                usleep(1000000);
+            break;
         }
         //output stuff
         clear();
@@ -118,6 +130,7 @@ void runGame(void) {
 
 int main(void) {
     init();
+    initBoard();
     runGame();
     return 0;
 }
