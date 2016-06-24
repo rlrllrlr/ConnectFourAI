@@ -34,6 +34,10 @@ void printBoard(void) {
     //board pieces
     for(int i = 0; i < 7; ++i) {
         for(int j = 0; j < 6; ++j) {
+            if(board[i][j] != ' ') {
+                cout << "@(" << i << ", " << j << ")\n";
+                usleep(10000000);
+            }
             mvwaddch(win, 1+2*j, 2+4*i, board[i][j]);
         }
     }
@@ -41,11 +45,11 @@ void printBoard(void) {
 
 //columns are numbered 0->5 (see board def)
 int dropIntoCol(char player, int col) {
-    if(col < 0 || col > 5) return col;
+    if(col < 0 || col >= 6) return col;
 
     int deepest = -1;
     for(int i = 0; i < 7; ++i) {
-        if(board[i][col] == 'X') {
+        if(board[col][i] == ' ') {
             deepest = i;
         }
     }
@@ -54,7 +58,9 @@ int dropIntoCol(char player, int col) {
         return -1;
     }
     else {
-        board[deepest][col] = player;
+        cout << col << "," << deepest << endl;
+        board[col][deepest] = player;
+        usleep(1000000);
     }
 
     return 0;
@@ -112,9 +118,7 @@ void runGame(void) {
                 }
             break;
             case ' ':
-                int foo = dropIntoCol(whose_turn, (xpos-2)/4);
-                cout << foo << endl;
-                usleep(1000000);
+                dropIntoCol(whose_turn, (xpos-2)/4);
             break;
         }
         //output stuff
