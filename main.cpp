@@ -34,10 +34,6 @@ void printBoard(void) {
     //board pieces
     for(int i = 0; i < 7; ++i) {
         for(int j = 0; j < 6; ++j) {
-            if(board[i][j] != ' ') {
-                cout << "@(" << i << ", " << j << ")\n";
-                usleep(10000000);
-            }
             mvwaddch(win, 1+2*j, 2+4*i, board[i][j]);
         }
     }
@@ -48,7 +44,7 @@ int dropIntoCol(char player, int col) {
     if(col < 0 || col >= 6) return col;
 
     int deepest = -1;
-    for(int i = 0; i < 7; ++i) {
+    for(int i = 0; i < 6; ++i) {
         if(board[col][i] == ' ') {
             deepest = i;
         }
@@ -58,9 +54,7 @@ int dropIntoCol(char player, int col) {
         return -1;
     }
     else {
-        cout << col << "," << deepest << endl;
         board[col][deepest] = player;
-        usleep(1000000);
     }
 
     return 0;
@@ -118,9 +112,13 @@ void runGame(void) {
                 }
             break;
             case ' ':
-                dropIntoCol(whose_turn, (xpos-2)/4);
+                int res = dropIntoCol(whose_turn, (xpos-2)/4);
+                if(res == 0) {
+                    whose_turn = (whose_turn == 'X')?'O':'X';
+                }
             break;
         }
+
         //output stuff
         clear();
         printBoard();
