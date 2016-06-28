@@ -5,6 +5,7 @@
 using namespace std;
 
 char board[7][6];
+char whose_ai = ''; //symbol of AI player
 WINDOW *win;
 
 void initBoard(void) {
@@ -165,24 +166,32 @@ void runGame(void) {
         }
 
         //output stuff
-
-        printBoard();
-        mvwaddch(win, 0, xpos, whose_turn);
-
         char victory = winner();
         if(victory != ' ') {
-            wmove(win, 15, 0);
-            wprintw(win, "Congratulations Player ");
-            waddch(win, victory);
+            while(true) {
+                ch = getch();
+                switch(ch) {
+                    case ' ':
+                        return;
+                    break;
+                }
 
-            wmove(win, 17, 0);
-            wprintw(win, "Press space to exit...");
+                printBoard();
+                wmove(win, 15, 0);
+                wprintw(win, "Congratulations Player ");
+                waddch(win, victory);
+            
+                wmove(win, 16, 0);
+                wprintw(win, "Press space to exit...");
+    
+                wrefresh(win);
+            }
         }
-
-        wrefresh(win);
-
-        //wait a bit
-        usleep(10000);
+        else {
+            printBoard();
+            mvwaddch(win, 0, xpos, whose_turn);
+            wrefresh(win);
+        }
     }
 }
 
@@ -190,5 +199,6 @@ int main(void) {
     init();
     initBoard();
     runGame();
+    endwin();
     return 0;
 }
