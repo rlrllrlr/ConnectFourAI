@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdlib>
 #include <curses.h>
 #include <unistd.h>
 using namespace std;
@@ -41,7 +42,7 @@ void printBoard(void) {
 
 //columns are numbered 0->5 (see board def)
 int dropIntoCol(char player, int col) {
-    if(col < 0 || col >= 6) return col;
+    if(col < 0 || col >= 7) return col;
 
     int deepest = -1;
     for(int i = 0; i < 6; ++i) {
@@ -60,23 +61,64 @@ int dropIntoCol(char player, int col) {
     return 0;
 }
 
-// return 'X' for no winner or the winning player symbol
+// return ' ' for no winner or the winning player symbol
 char winner(void) {
     for(int i = 0; i < 7; ++i) {
         for(int j = 0; j < 6; ++j) {
-            if(board[i][j] != 'X') {
-                //column
-                if(i < 6-4) {
-                }
+            if(board[i][j] != ' ') {
                 //row
-                if(j < 7-4) {
+                if(i <= 6-4) {
+                    bool success = true;
+                    for(int a = i; a-i < 4; ++a) {
+                        if(board[a][j] != board[i][j]) {
+                            success = false;
+                        }
+                    }
+                    if(success) {
+                        return board[i][j];
+                    }
                 }
-                //diagonal
-                if(i < 6-4 && j < 7-4) {
+                //column
+                if(j <= 7-4) {
+                    bool success = true;
+                    for(int a = j; a-j < 4; ++a) {
+                        if(board[i][a] != board[i][j]) {
+                            success = false;
+                        }
+                    }
+                    if(success) {
+                        return board[i][j];
+                    }
+                }
+                //diagonal (down-right)
+                if(i <= 6-4 && j <= 7-4) {
+                    bool success = true;
+                    for(int a = i, b = j; a-i < 4 && b-j < 4; ++a, ++b) {
+                        if(board[a][b] != board[i][j]) {
+                            success = false;
+                        }
+                    }
+                    if(success) {
+                        return board[i][j];
+                    }
+                }
+                //diagonal (down-left)
+                if(i >= 3 && j <= 7-4) {
+                    bool success = true;
+                    for(int a = i, b = j; i-a < 4 && b-j < 4; --a, ++b) {
+                        if(board[a][b] != board[i][j]) {
+                            success = false;
+                        }
+                    }
+                    if(success) {
+                        return board[i][j];
+                    }
                 }
             }
         }
     }
+
+    return ' ';
 }
 
 void init(void) {
@@ -105,24 +147,38 @@ void runGame(void) {
                 if(xpos > 2) {
                     xpos -= 4;
                 }
+                clear();
             break;
             case KEY_RIGHT:
                 if(xpos < 25) {
                     xpos += 4;
                 }
+                clear();
             break;
             case ' ':
                 int res = dropIntoCol(whose_turn, (xpos-2)/4);
                 if(res == 0) {
                     whose_turn = (whose_turn == 'X')?'O':'X';
                 }
+                clear();
             break;
         }
 
         //output stuff
-        clear();
+
         printBoard();
         mvwaddch(win, 0, xpos, whose_turn);
+
+        char victory = winner();
+        if(victory != ' ') {
+            wmove(win, 15, 0);
+            wprintw(win, "Congratulations Player ");
+            waddch(win, victory);
+
+            wmove(win, 17, 0);
+            wprintw(win, "Press space to exit...");
+        }
+
         wrefresh(win);
 
         //wait a bit
