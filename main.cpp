@@ -146,7 +146,7 @@ void runGame(void) {
     while(true) {
         //make sure it's not the AI's turn
         if(whose_turn == who_is_ai || who_is_ai == 'b') {
-            int status = makeMoveAI(whose_turn);
+            int status = makeBasicMoveAI(whose_turn);
 
             if(status == 0) {
                 whose_turn = (whose_turn == 'X')?'O':'X';
