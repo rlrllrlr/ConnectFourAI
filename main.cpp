@@ -2,10 +2,12 @@
 #include <cstdlib>
 #include <curses.h>
 #include <unistd.h>
+#include "./proto.h"
+#include "./ai.cpp"
 using namespace std;
 
 char board[7][6];
-char whose_ai = ''; //symbol of AI player
+char who_is_ai = 'O'; //symbol of AI player. ' ' if no AI and 'b' if both AI.
 WINDOW *win;
 
 void initBoard(void) {
@@ -138,31 +140,42 @@ void init(void) {
 
 void runGame(void) {
     char whose_turn = 'X'; //X turn first
- 
+    int ch;
     int xpos = 2;
+
     while(true) {
-        //input stuff
-        int ch = getch();
-        switch(ch) {
-            case KEY_LEFT:
-                if(xpos > 2) {
-                    xpos -= 4;
-                }
-                clear();
-            break;
-            case KEY_RIGHT:
-                if(xpos < 25) {
-                    xpos += 4;
-                }
-                clear();
-            break;
-            case ' ':
-                int res = dropIntoCol(whose_turn, (xpos-2)/4);
-                if(res == 0) {
-                    whose_turn = (whose_turn == 'X')?'O':'X';
-                }
-                clear();
-            break;
+        //make sure it's not the AI's turn
+        if(whose_turn == who_is_ai || who_is_ai == 'b') {
+            int status = makeMoveAI(whose_turn);
+
+            if(status == 0) {
+                whose_turn = (whose_turn == 'X')?'O':'X';
+            }
+        }
+        //since it's not the AI's turn, we accept user input
+        else {
+            ch = getch();
+            switch(ch) {
+                case KEY_LEFT:
+                    if(xpos > 2) {
+                        xpos -= 4;
+                    }
+                    clear();
+                break;
+                case KEY_RIGHT:
+                    if(xpos < 25) {
+                        xpos += 4;
+                    }
+                    clear();
+                break;
+                case ' ':
+                    int res = dropIntoCol(whose_turn, (xpos-2)/4);
+                    if(res == 0) {
+                        whose_turn = (whose_turn == 'X')?'O':'X';
+                    }
+                    clear();
+                break;
+            }
         }
 
         //output stuff
