@@ -1,12 +1,45 @@
 // + ratings are good for player and - ratings are good for opponent
 int rateBoard(char player) {
+    char opp = (player == 'X')?'O':'X';
+
     int score = 0;
 
     //check rows
-    for(int col = 0; col < 6; ++col) {
-        for(int row = 0; row < 7; ++row) {
+    for(int row = 0; row < 6; ++row) {
+        for(int col = 0; col < 7-3; ++col) {
+
+            int player_counter = 0, opp_counter = 0;
+            for(int a = 0; a < 4; ++a) {
+                if(board[col+a][row] == player) {
+                    player_counter += 1;
+                }
+                if(board[col+a][row] == opp) {
+                    opp_counter += 1;
+                }
+            }
+
+            //neither player can win a group occupied by both
+            if(player_counter > 0 && opp_counter > 0) {
+                continue;
+            }
+            else if(player_counter > 0) {
+                if(player_counter >= 4) {
+                    return 8000;
+                }
+
+                score += player_counter*10;
+            }
+            else if(opp_counter > 0) {
+                if(opp_counter >= 4) {
+                    return -8000;
+                }
+
+                score -= opp_counter*10;
+            }
         }
     }
+
+    //check columns
 }
 
 //drops into leftmost available column
