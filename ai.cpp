@@ -1,5 +1,5 @@
 // + ratings are good for player and - ratings are good for opponent
-int rateBoard(char player) {
+int rateBoard(Board given_board, char player) {
     char opp = (player == 'X')?'O':'X';
 
     int score = 0;
@@ -10,10 +10,10 @@ int rateBoard(char player) {
 
             int player_counter = 0, opp_counter = 0;
             for(int a = 0; a < 4; ++a) {
-                if(board[col+a][row] == player) {
+                if(given_board.value[col+a][row] == player) {
                     player_counter += 1;
                 }
-                if(board[col+a][row] == opp) {
+                if(given_board.value[col+a][row] == opp) {
                     opp_counter += 1;
                 }
             }
@@ -44,10 +44,10 @@ int rateBoard(char player) {
         for(int row = 0; row < 6-3; ++row) {
             int player_counter = 0, opp_counter = 0;
             for(int a = 0; a < 4; ++a) {
-                if(board[col][row+a] == player) {
+                if(given_board.value[col][row+a] == player) {
                     player_counter += 1;
                 }
-                if(board[col][row+a] == opp) {
+                if(given_board.value[col][row+a] == opp) {
                     opp_counter += 1;
                 }
             }
@@ -77,10 +77,10 @@ int rateBoard(char player) {
         for(int row = 0; row < 6-3; ++row) {
             int player_counter = 0, opp_counter = 0;
             for(int a = 0; a < 4; ++a) {
-                if(board[col+a][row+a] == player) {
+                if(given_board.value[col+a][row+a] == player) {
                     player_counter += 1;
                 }
-                if(board[col+a][row+a] == opp) {
+                if(given_board.value[col+a][row+a] == opp) {
                     opp_counter += 1;
                 }
             }
@@ -110,10 +110,10 @@ int rateBoard(char player) {
         for(int row = 0; row < 6-3; ++row) {
             int player_counter = 0, opp_counter = 0;
             for(int a = 0; a < 4; ++a) {
-                if(board[col-a][row+a] == player) {
+                if(given_board.value[col-a][row+a] == player) {
                     player_counter += 1;
                 }
-                if(board[col+a][row+a] == opp) {
+                if(given_board.value[col+a][row+a] == opp) {
                     opp_counter += 1;
                 }
             }
@@ -141,10 +141,16 @@ int rateBoard(char player) {
     return score;
 }
 
-//drops into leftmost available column
-int makeBasicMoveAI(char player) {
+int minimaxmove(char player) {
+    //loop through possible moves
     for(int i = 0; i < 7; ++i) {
-        int status = dropIntoCol(player, i);
+    }
+}
+
+//drops into leftmost available column
+int makeBasicMoveAI(Board &given_board, char player) {
+    for(int i = 0; i < 7; ++i) {
+        int status = dropIntoCol(given_board, player, i);
         if(status == 0) {
             return 0;
         }

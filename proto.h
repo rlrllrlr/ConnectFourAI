@@ -1,8 +1,12 @@
+struct Board {
+    char value[7][6];
+};
+
 void init(void);
-void runGame(void);
+void runGame(Board &given_board);
 
-void initBoard(void);
-void printBoard(void);
+void initBoard(Board &given_board);
+void printBoard(Board given_board);
 
-int dropIntoCol(char player, int col);
-char winner(void);
+int dropIntoCol(Board &given_board, char player, int col);
+char winner(Board given_board);

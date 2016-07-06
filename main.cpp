@@ -6,19 +6,17 @@
 #include "./ai.cpp"
 using namespace std;
 
-char board[7][6];
-char who_is_ai = 'O'; //symbol of AI player. ' ' if no AI and 'b' if both AI.
 WINDOW *win;
 
-void initBoard(void) {
+void initBoard(Board &given_board) {
     for(int i = 0; i < 7; ++i) {
         for(int j = 0; j < 6; ++j) {
-            board[i][j] = ' ';
+            given_board.value[i][j] = ' ';
         }
     }
 }
 
-void printBoard(void) {
+void printBoard(Board given_board) {
     //vertical bars
     for(int i = 0; i < 6; ++i) {
         for(int j = 0; j < 8; ++j) {
@@ -38,18 +36,18 @@ void printBoard(void) {
     //board pieces
     for(int i = 0; i < 7; ++i) {
         for(int j = 0; j < 6; ++j) {
-            mvwaddch(win, 1+2*j, 2+4*i, board[i][j]);
+            mvwaddch(win, 1+2*j, 2+4*i, given_board.value[i][j]);
         }
     }
 }
 
 //columns are numbered 0->5 (see board def)
-int dropIntoCol(char player, int col) {
+int dropIntoCol(Board &given_board, char player, int col) {
     if(col < 0 || col >= 7) return col;
 
     int deepest = -1;
     for(int i = 0; i < 6; ++i) {
-        if(board[col][i] == ' ') {
+        if(given_board.value[col][i] == ' ') {
             deepest = i;
         }
     }
@@ -58,63 +56,63 @@ int dropIntoCol(char player, int col) {
         return -1;
     }
     else {
-        board[col][deepest] = player;
+        given_board.value[col][deepest] = player;
     }
 
     return 0;
 }
 
 // return ' ' for no winner or the winning player symbol
-char winner(void) {
+char winner(Board given_board) {
     for(int i = 0; i < 7; ++i) {
         for(int j = 0; j < 6; ++j) {
-            if(board[i][j] != ' ') {
+            if(given_board.value[i][j] != ' ') {
                 //row
                 if(i <= 6-4) {
                     bool success = true;
                     for(int a = i; a-i < 4; ++a) {
-                        if(board[a][j] != board[i][j]) {
+                        if(given_board.value[a][j] != given_board.value[i][j]) {
                             success = false;
                         }
                     }
                     if(success) {
-                        return board[i][j];
+                        return given_board.value[i][j];
                     }
                 }
                 //column
                 if(j <= 7-4) {
                     bool success = true;
                     for(int a = j; a-j < 4; ++a) {
-                        if(board[i][a] != board[i][j]) {
+                        if(given_board.value[i][a] != given_board.value[i][j]) {
                             success = false;
                         }
                     }
                     if(success) {
-                        return board[i][j];
+                        return given_board.value[i][j];
                     }
                 }
                 //diagonal (down-right)
                 if(i <= 6-4 && j <= 7-4) {
                     bool success = true;
                     for(int a = i, b = j; a-i < 4 && b-j < 4; ++a, ++b) {
-                        if(board[a][b] != board[i][j]) {
+                        if(given_board.value[a][b] != given_board.value[i][j]) {
                             success = false;
                         }
                     }
                     if(success) {
-                        return board[i][j];
+                        return given_board.value[i][j];
                     }
                 }
                 //diagonal (down-left)
                 if(i >= 3 && j <= 7-4) {
                     bool success = true;
                     for(int a = i, b = j; i-a < 4 && b-j < 4; --a, ++b) {
-                        if(board[a][b] != board[i][j]) {
+                        if(given_board.value[a][b] != given_board.value[i][j]) {
                             success = false;
                         }
                     }
                     if(success) {
-                        return board[i][j];
+                        return given_board.value[i][j];
                     }
                 }
             }
@@ -138,7 +136,7 @@ void init(void) {
     nodelay(stdscr, TRUE);
 }
 
-void runGame(void) {
+void runGame(Board &given_board, char who_is_ai) {
     char whose_turn = 'X'; //X turn first
     int ch;
     int xpos = 2;
@@ -146,7 +144,7 @@ void runGame(void) {
     while(true) {
         //make sure it's not the AI's turn
         if(whose_turn == who_is_ai || who_is_ai == 'b') {
-            int status = makeBasicMoveAI(whose_turn);
+            int status = makeBasicMoveAI(given_board, whose_turn);
 
             if(status == 0) {
                 whose_turn = (whose_turn == 'X')?'O':'X';
@@ -169,17 +167,19 @@ void runGame(void) {
                     clear();
                 break;
                 case ' ':
-                    int res = dropIntoCol(whose_turn, (xpos-2)/4);
+                    int res = dropIntoCol(given_board, whose_turn, (xpos-2)/4);
                     if(res == 0) {
                         whose_turn = (whose_turn == 'X')?'O':'X';
                     }
                     clear();
+                    cout << rateBoard(given_board, 'X') << endl;
+                    usleep(1000000);
                 break;
             }
         }
 
         //output stuff
-        char victory = winner();
+        char victory = winner(given_board);
         if(victory != ' ') {
             while(true) {
                 ch = getch();
@@ -189,7 +189,7 @@ void runGame(void) {
                     break;
                 }
 
-                printBoard();
+                printBoard(given_board);
                 wmove(win, 15, 0);
                 wprintw(win, "Congratulations Player ");
                 waddch(win, victory);
@@ -201,7 +201,7 @@ void runGame(void) {
             }
         }
         else {
-            printBoard();
+            printBoard(given_board);
             mvwaddch(win, 0, xpos, whose_turn);
             wrefresh(win);
         }
@@ -209,9 +209,14 @@ void runGame(void) {
 }
 
 int main(void) {
+    char who_is_ai = ' '; //symbol of AI player. ' ' if no AI and 'b' if both AI.
+    Board main_board;
+
     init();
-    initBoard();
-    runGame();
+
+    initBoard(main_board);
+    runGame(main_board, who_is_ai);
+
     endwin();
     return 0;
 }
