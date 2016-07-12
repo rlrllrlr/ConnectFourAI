@@ -86,7 +86,7 @@ char winner(Board given_board) {
         for(int j = 0; j < 6; ++j) {
             if(given_board.value[i][j] != ' ') {
                 //row
-                if(i <= 6-4) {
+                if(i <= 6-3) {
                     bool success = true;
                     for(int a = i; a-i < 4; ++a) {
                         if(given_board.value[a][j] != given_board.value[i][j]) {
@@ -98,7 +98,7 @@ char winner(Board given_board) {
                     }
                 }
                 //column
-                if(j <= 7-4) {
+                if(j <= 5-3) {
                     bool success = true;
                     for(int a = j; a-j < 4; ++a) {
                         if(given_board.value[i][a] != given_board.value[i][j]) {
@@ -110,7 +110,7 @@ char winner(Board given_board) {
                     }
                 }
                 //diagonal (down-right)
-                if(i <= 6-4 && j <= 7-4) {
+                if(i <= 6-3 && j <= 5-3) {
                     bool success = true;
                     for(int a = i, b = j; a-i < 4 && b-j < 4; ++a, ++b) {
                         if(given_board.value[a][b] != given_board.value[i][j]) {
@@ -122,7 +122,7 @@ char winner(Board given_board) {
                     }
                 }
                 //diagonal (down-left)
-                if(i >= 3 && j <= 7-4) {
+                if(i >= 3 && j <= 5-3) {
                     bool success = true;
                     for(int a = i, b = j; i-a < 4 && b-j < 4; --a, ++b) {
                         if(given_board.value[a][b] != given_board.value[i][j]) {
