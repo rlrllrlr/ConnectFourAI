@@ -161,7 +161,7 @@ int minimaxSearch(Board given, char player, int depth=0) {
         return best_col;
     }
     else {
-        if(depth == 3) {
+        if(depth == 6) {
             return rateBoard(given, player);
         }
 
