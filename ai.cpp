@@ -24,14 +24,14 @@ int rateBoard(Board given_board, char player) {
             }
             else if(player_counter > 0) {
                 if(player_counter >= 4) {
-                    return 8000;
+                    return 8000000;
                 }
 
                 score += player_counter*10;
             }
             else if(opp_counter > 0) {
                 if(opp_counter >= 4) {
-                    return -8000;
+                    return -8000000;
                 }
 
                 score -= opp_counter*10;
@@ -57,14 +57,14 @@ int rateBoard(Board given_board, char player) {
             }
             else if(player_counter > 0) {
                 if(player_counter >= 4) {
-                    return 8000;
+                    return 8000000;
                 }
 
                 score += player_counter*10;
             }
             else if(opp_counter > 0) {
                 if(opp_counter >= 4) {
-                    return -8000;
+                    return -8000000;
                 }
 
                 score -= opp_counter*10;
@@ -90,14 +90,14 @@ int rateBoard(Board given_board, char player) {
             }
             else if(player_counter > 0) {
                 if(player_counter >= 4) {
-                    return 8000;
+                    return 8000000;
                 }
 
                 score += player_counter*10;
             }
             else if(opp_counter > 0) {
                 if(opp_counter >= 4) {
-                    return -8000;
+                    return -8000000;
                 }
 
                 score -= opp_counter*10;
@@ -123,14 +123,14 @@ int rateBoard(Board given_board, char player) {
             }
             else if(player_counter > 0) {
                 if(player_counter >= 4) {
-                    return 8000;
+                    return 8000000;
                 }
 
                 score += player_counter*10;
             }
             else if(opp_counter > 0) {
                 if(opp_counter >= 4) {
-                    return -8000;
+                    return -8000000;
                 }
                 
                 score -= opp_counter*10;
@@ -141,16 +141,20 @@ int rateBoard(Board given_board, char player) {
     return score;
 }
 
-int minimaxSearch(Board given, char player, int depth=0) {
-    //if root, find the child with best minimax search result
+//choose best worst case scenario
+int minimaxSearch(Board given, char player, int depth, bool isMaximizing) {
     if(depth == 0) {
-        int max_score = -9000, best_col = 0;
+        return rateBoard(given, player);
+    }
+
+    if(isMaximizing) {
+        int max_score = -9000000, best_col = -1;
         for(int i = 0; i < 7; ++i) {
             if(canDropIntoCol(given, i)) {
                 Board copy = given;
                 dropIntoCol(copy, player, i);
 
-                int score = minimaxSearch(copy, (player=='X')?'O':'X', depth+1);
+                int score = minimaxSearch(copy, player, depth-1, !isMaximizing);
                 if(score > max_score) {
                     max_score = score;
                     best_col = i;
@@ -158,36 +162,34 @@ int minimaxSearch(Board given, char player, int depth=0) {
             }
         }
 
-        return best_col;
+        if(depth == 2) {
+            return best_col;
+        }
+        else {
+            return max_score;
+        }
     }
     else {
-        if(depth == 6) {
-            return rateBoard(given, player);
-        }
-
-        int max_score = -9000, best_col = 0;
+        int min_score = 9000000, best_col = -1;
         for(int i = 0; i < 7; ++i) {
             if(canDropIntoCol(given, i)) {
                 Board copy = given;
-                dropIntoCol(copy, player, i);
+                dropIntoCol(copy, (player=='X')?'O':'X', i);
 
-                int score = rateBoard(copy, player);
-                if(score > max_score) {
-                    max_score = score;
+                int score = minimaxSearch(copy, player, depth-1, !isMaximizing);
+                if(score < min_score) {
+                    min_score = score;
                     best_col = i;
                 }
             }
         }
 
-        Board copy = given;
-        dropIntoCol(copy, player, best_col);
-
-        return minimaxSearch(copy, (player=='X')?'O':'X', depth+1);
+        return min_score;
     }
 }
 
 int makeMinimaxMoveAI(Board &given_board, char player) {
-    int move = minimaxSearch(given_board, player);
+    int move = minimaxSearch(given_board, player, 2, true);
     dropIntoCol(given_board, player, move);
     return 0;
 }
