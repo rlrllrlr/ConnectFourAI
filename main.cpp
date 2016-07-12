@@ -41,7 +41,25 @@ void printBoard(Board given_board) {
     }
 }
 
-//columns are numbered 0->5 (see board def)
+//columns are numbered 0->6 (see board def)
+bool canDropIntoCol(Board given_board, int col) {
+    if(col < 0 || col >= 7) return false;
+
+    int deepest = -1;
+    for(int i = 0; i < 6; ++i) {
+        if(given_board.value[col][i] == ' ') {
+            deepest = i;
+        }
+    }
+
+    if(deepest < 0) {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+
 int dropIntoCol(Board &given_board, char player, int col) {
     if(col < 0 || col >= 7) return col;
 
@@ -144,7 +162,7 @@ void runGame(Board &given_board, char who_is_ai) {
     while(true) {
         //make sure it's not the AI's turn
         if(whose_turn == who_is_ai || who_is_ai == 'b') {
-            int status = makeBasicMoveAI(given_board, whose_turn);
+            int status = makeMinimaxMoveAI(given_board, whose_turn);
 
             if(status == 0) {
                 whose_turn = (whose_turn == 'X')?'O':'X';
@@ -172,8 +190,6 @@ void runGame(Board &given_board, char who_is_ai) {
                         whose_turn = (whose_turn == 'X')?'O':'X';
                     }
                     clear();
-                    cout << rateBoard(given_board, 'X') << endl;
-                    usleep(1000000);
                 break;
             }
         }
@@ -209,7 +225,7 @@ void runGame(Board &given_board, char who_is_ai) {
 }
 
 int main(void) {
-    char who_is_ai = ' '; //symbol of AI player. ' ' if no AI and 'b' if both AI.
+    char who_is_ai = 'O'; //symbol of AI player. ' ' if no AI and 'b' if both AI.
     Board main_board;
 
     init();

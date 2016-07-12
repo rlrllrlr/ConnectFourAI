@@ -141,10 +141,55 @@ int rateBoard(Board given_board, char player) {
     return score;
 }
 
-int minimaxmove(char player) {
-    //loop through possible moves
-    for(int i = 0; i < 7; ++i) {
+int minimaxSearch(Board given, char player, int depth=0) {
+    //if root, find the child with best minimax search result
+    if(depth == 0) {
+        int max_score = -9000, best_col = 0;
+        for(int i = 0; i < 7; ++i) {
+            if(canDropIntoCol(given, i)) {
+                Board copy = given;
+                dropIntoCol(copy, player, i);
+
+                int score = minimaxSearch(copy, (player=='X')?'O':'X', depth+1);
+                if(score > max_score) {
+                    max_score = score;
+                    best_col = i;
+                }
+            }
+        }
+
+        return best_col;
     }
+    else {
+        if(depth == 3) {
+            return rateBoard(given, player);
+        }
+
+        int max_score = -9000, best_col = 0;
+        for(int i = 0; i < 7; ++i) {
+            if(canDropIntoCol(given, i)) {
+                Board copy = given;
+                dropIntoCol(copy, player, i);
+
+                int score = rateBoard(copy, player);
+                if(score > max_score) {
+                    max_score = score;
+                    best_col = i;
+                }
+            }
+        }
+
+        Board copy = given;
+        dropIntoCol(copy, player, best_col);
+
+        return minimaxSearch(copy, (player=='X')?'O':'X', depth+1);
+    }
+}
+
+int makeMinimaxMoveAI(Board &given_board, char player) {
+    int move = minimaxSearch(given_board, player);
+    dropIntoCol(given_board, player, move);
+    return 0;
 }
 
 //drops into leftmost available column
