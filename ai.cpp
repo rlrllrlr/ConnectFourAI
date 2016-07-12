@@ -162,7 +162,7 @@ int minimaxSearch(Board given, char player, int depth, bool isMaximizing) {
             }
         }
 
-        if(depth == 2) {
+        if(depth == 4) {
             return best_col;
         }
         else {
@@ -189,7 +189,7 @@ int minimaxSearch(Board given, char player, int depth, bool isMaximizing) {
 }
 
 int makeMinimaxMoveAI(Board &given_board, char player) {
-    int move = minimaxSearch(given_board, player, 2, true);
+    int move = minimaxSearch(given_board, player, 4, true);
     dropIntoCol(given_board, player, move);
     return 0;
 }
