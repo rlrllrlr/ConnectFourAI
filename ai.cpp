@@ -73,8 +73,8 @@ int rateBoard(Board given_board, char player) {
     }
 
     //check down right diagonal
-    for(int col = 0; col < 7-3; ++col) {
-        for(int row = 0; row < 6-3; ++row) {
+    for(int col = 0; col < 7-4; ++col) {
+        for(int row = 0; row < 6-4; ++row) {
             int player_counter = 0, opp_counter = 0;
             for(int a = 0; a < 4; ++a) {
                 if(given_board.value[col+a][row+a] == player) {
@@ -143,7 +143,7 @@ int rateBoard(Board given_board, char player) {
 
 //choose best worst case scenario
 int minimaxSearch(Board given, char player, int depth, bool isMaximizing) {
-    if(depth == 0) {
+    if(depth == 0 || winner(given) != ' ') {
         return rateBoard(given, player);
     }
 
