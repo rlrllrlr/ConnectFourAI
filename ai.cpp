@@ -1,3 +1,7 @@
+#include <iostream>
+#include <unistd.h>
+using namespace std;
+
 // + ratings are good for player and - ratings are good for opponent
 int rateBoard(Board given_board, char player) {
     char opp = (player == 'X')?'O':'X';
