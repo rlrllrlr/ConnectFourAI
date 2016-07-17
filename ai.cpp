@@ -2,6 +2,8 @@
 #include <unistd.h>
 using namespace std;
 
+#define STEPS_AHEAD 4
+
 // + ratings are good for player and - ratings are good for opponent
 int rateBoard(Board given_board, char player) {
     char opp = (player == 'X')?'O':'X';
@@ -10,7 +12,7 @@ int rateBoard(Board given_board, char player) {
 
     //check rows
     for(int row = 0; row < 6; ++row) {
-        for(int col = 0; col < 7-3; ++col) {
+        for(int col = 0; col < 4; ++col) {
 
             int player_counter = 0, opp_counter = 0;
             for(int a = 0; a < 4; ++a) {
@@ -45,7 +47,7 @@ int rateBoard(Board given_board, char player) {
 
     //check columns
     for(int col = 0; col < 7; ++col) {
-        for(int row = 0; row < 6-3; ++row) {
+        for(int row = 0; row < 3; ++row) {
             int player_counter = 0, opp_counter = 0;
             for(int a = 0; a < 4; ++a) {
                 if(given_board.value[col][row+a] == player) {
@@ -77,8 +79,8 @@ int rateBoard(Board given_board, char player) {
     }
 
     //check down right diagonal
-    for(int col = 0; col < 7-4; ++col) {
-        for(int row = 0; row < 6-4; ++row) {
+    for(int col = 0; col < 4; ++col) {
+        for(int row = 0; row < 3; ++row) {
             int player_counter = 0, opp_counter = 0;
             for(int a = 0; a < 4; ++a) {
                 if(given_board.value[col+a][row+a] == player) {
@@ -111,7 +113,7 @@ int rateBoard(Board given_board, char player) {
 
     //check down left diagonal
     for(int col = 3; col < 7; ++col) {
-        for(int row = 0; row < 6-3; ++row) {
+        for(int row = 0; row < 3; ++row) {
             int player_counter = 0, opp_counter = 0;
             for(int a = 0; a < 4; ++a) {
                 if(given_board.value[col-a][row+a] == player) {
@@ -145,6 +147,7 @@ int rateBoard(Board given_board, char player) {
     return score;
 }
 
+
 //choose best worst case scenario
 int minimaxSearch(Board given, char player, int depth, bool isMaximizing) {
     if(depth == 0 || winner(given) != ' ') {
@@ -166,7 +169,9 @@ int minimaxSearch(Board given, char player, int depth, bool isMaximizing) {
             }
         }
 
-        if(depth == 4) {
+        if(depth == STEPS_AHEAD) {
+            cout << "chose move with score: " << max_score << endl;
+            //usleep(1000000);
             return best_col;
         }
         else {
@@ -193,7 +198,7 @@ int minimaxSearch(Board given, char player, int depth, bool isMaximizing) {
 }
 
 int makeMinimaxMoveAI(Board &given_board, char player) {
-    int move = minimaxSearch(given_board, player, 4, true);
+    int move = minimaxSearch(given_board, player, STEPS_AHEAD, true);
     dropIntoCol(given_board, player, move);
     return 0;
 }
