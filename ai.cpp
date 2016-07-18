@@ -1,8 +1,9 @@
 #include <iostream>
 #include <unistd.h>
+#include <cmath>
 using namespace std;
 
-#define STEPS_AHEAD 4
+#define STEPS_AHEAD 8
 
 // + ratings are good for player and - ratings are good for opponent
 int rateBoard(Board given_board, char player) {
@@ -33,14 +34,14 @@ int rateBoard(Board given_board, char player) {
                     return 8000000;
                 }
 
-                score += player_counter*10;
+                score += 10*player_counter;
             }
             else if(opp_counter > 0) {
                 if(opp_counter >= 4) {
                     return -8000000;
                 }
 
-                score -= opp_counter*10;
+                score -= 10*opp_counter;
             }
         }
     }
@@ -66,14 +67,14 @@ int rateBoard(Board given_board, char player) {
                     return 8000000;
                 }
 
-                score += player_counter*10;
+                score += 10*player_counter;
             }
             else if(opp_counter > 0) {
                 if(opp_counter >= 4) {
                     return -8000000;
                 }
 
-                score -= opp_counter*10;
+                score -= 10*opp_counter;
             }
         }
     }
@@ -99,14 +100,14 @@ int rateBoard(Board given_board, char player) {
                     return 8000000;
                 }
 
-                score += player_counter*10;
+                score += 10*player_counter;
             }
             else if(opp_counter > 0) {
                 if(opp_counter >= 4) {
                     return -8000000;
                 }
 
-                score -= opp_counter*10;
+                score -= 10*opp_counter;
             }
         }
     }
@@ -119,7 +120,7 @@ int rateBoard(Board given_board, char player) {
                 if(given_board.value[col-a][row+a] == player) {
                     player_counter += 1;
                 }
-                if(given_board.value[col+a][row+a] == opp) {
+                if(given_board.value[col-a][row+a] == opp) {
                     opp_counter += 1;
                 }
             }
@@ -132,14 +133,14 @@ int rateBoard(Board given_board, char player) {
                     return 8000000;
                 }
 
-                score += player_counter*10;
+                score += 10*player_counter;
             }
             else if(opp_counter > 0) {
                 if(opp_counter >= 4) {
                     return -8000000;
                 }
                 
-                score -= opp_counter*10;
+                score -= 10*opp_counter;
             }
         }
     }
@@ -201,8 +202,10 @@ MiniMaxPack minimaxSearch(Board given, char player, int depth, bool isMaximizing
 }
 
 int makeMinimaxMoveAI(Board &given_board, char player) {
-    int move = minimaxSearch(given_board, player, STEPS_AHEAD, true).col;
-    dropIntoCol(given_board, player, move);
+    MiniMaxPack returned = minimaxSearch(given_board, player, STEPS_AHEAD, true);
+    cout << "chose move with worst case scenario: " << returned.score << endl;
+    usleep(1000000);
+    dropIntoCol(given_board, player, returned.col);
     return 0;
 }
 
