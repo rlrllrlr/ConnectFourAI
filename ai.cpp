@@ -147,58 +147,61 @@ int rateBoard(Board given_board, char player) {
     return score;
 }
 
+struct MiniMaxPack {
+    int score;
+    int col;
+    int depth;
+};
 
 //choose best worst case scenario
-int minimaxSearch(Board given, char player, int depth, bool isMaximizing) {
+MiniMaxPack minimaxSearch(Board given, char player, int depth, bool isMaximizing) {
     if(depth == 0 || winner(given) != ' ') {
-        return rateBoard(given, player);
+        return (MiniMaxPack){rateBoard(given, player), -1, depth};
     }
 
     if(isMaximizing) {
-        int max_score = -9000000, best_col = -1;
+        MiniMaxPack best_returned = {-9000000, -1, -1};
+
         for(int i = 0; i < 7; ++i) {
             if(canDropIntoCol(given, i)) {
                 Board copy = given;
                 dropIntoCol(copy, player, i);
 
-                int score = minimaxSearch(copy, player, depth-1, !isMaximizing);
-                if(score > max_score) {
-                    max_score = score;
-                    best_col = i;
+                MiniMaxPack returned = minimaxSearch(copy, player, depth-1, !isMaximizing);
+                if(returned.score > best_returned.score ||
+                   (best_returned.score == returned.score && returned.depth > best_returned.depth)) {
+                    best_returned.score = returned.score;
+                    best_returned.col = i;
+                    best_returned.depth = returned.depth;
                 }
             }
         }
 
-        if(depth == STEPS_AHEAD) {
-            cout << "chose move with score: " << max_score << endl;
-            //usleep(1000000);
-            return best_col;
-        }
-        else {
-            return max_score;
-        }
+        return best_returned;
     }
     else {
-        int min_score = 9000000, best_col = -1;
+        MiniMaxPack best_returned = {9000000, -1, -1};
+
         for(int i = 0; i < 7; ++i) {
             if(canDropIntoCol(given, i)) {
                 Board copy = given;
                 dropIntoCol(copy, (player=='X')?'O':'X', i);
 
-                int score = minimaxSearch(copy, player, depth-1, !isMaximizing);
-                if(score < min_score) {
-                    min_score = score;
-                    best_col = i;
+                MiniMaxPack returned = minimaxSearch(copy, player, depth-1, !isMaximizing);
+                if(returned.score < best_returned.score) {
+                    best_returned.score = returned.score;
+                    best_returned.col = i;
+                    best_returned.depth = returned.depth;
                 }
             }
         }
 
-        return min_score;
+        return best_returned;
     }
 }
 
 int makeMinimaxMoveAI(Board &given_board, char player) {
-    int move = minimaxSearch(given_board, player, STEPS_AHEAD, true);
+    int move = minimaxSearch(given_board, player, STEPS_AHEAD, true).col;
     dropIntoCol(given_board, player, move);
     return 0;
 }
