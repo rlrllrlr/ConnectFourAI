@@ -164,11 +164,18 @@ void runGame(char who_is_ai, int x_ai_level=0, int o_ai_level=0) {
     while(true) {
         //make sure it's not the AI's turn
         if(whose_turn == who_is_ai || who_is_ai == 'b') {
+            move(14, 0);
+            printw("Thinking...");
+            refresh();
+
             int status = makeMinimaxMoveAI(given_board, whose_turn, (whose_turn=='X')?x_ai_level:o_ai_level);
 
             if(status == 0) {
                 whose_turn = (whose_turn == 'X')?'O':'X';
             }
+ 
+            usleep(1000000); //so the user can see what's going on.           
+            clear();
         }
         //since it's not the AI's turn, we accept user input
         else {
@@ -213,7 +220,7 @@ void runGame(char who_is_ai, int x_ai_level=0, int o_ai_level=0) {
                 addch(victory);
             
                 move(16, 0);
-                printw("Press space to exit...");
+                printw("Press SPACE to exit...");
     
                 refresh();
             }
@@ -286,7 +293,7 @@ void PvCMenu() {
         printw("Use the arrow keys to set AI difficulty and symbol.");
         move(7, 0);
         printw("Press SPACE to start.");
-        attroff(A_UNDERLINE);
+        attroff(A_BOLD);
 
         refresh();
 
@@ -341,6 +348,107 @@ void PvCMenu() {
 }
 
 void CvCMenu() {
+    clear();
+
+    int selection1 = 1,
+        selection2 = 1,
+        option = 0;
+
+    while(true) {
+        //output stuff
+
+        attron(A_UNDERLINE | A_BOLD);
+        move(0, 0);
+        printw("Computer v Computer Menu");
+        attroff(A_UNDERLINE | A_BOLD);
+
+        move(2, 0);
+        printw("X Difficulty: ");
+        for(int i = 1; i <= 4; ++i) {
+            if(selection1 == i) {
+                if(option == 0) {
+                    attron(A_REVERSE);
+                }
+                else if(option == 1) {
+                    attron(A_DIM | A_UNDERLINE);
+                }
+            }
+            addch((48+i));
+            attroff(A_DIM | A_UNDERLINE | A_REVERSE);
+
+            addch(' ');
+        }
+
+        move(4, 0);
+        printw("O Difficulty: ");
+        for(int i = 1; i <= 4; ++i) {
+            if(selection2 == i) {
+                if(option == 1) {
+                    attron(A_REVERSE);
+                }
+                else if(option == 0) {
+                    attron(A_DIM | A_UNDERLINE);
+                }
+            }
+            addch((48+i));
+            attroff(A_DIM | A_UNDERLINE | A_REVERSE);
+
+            addch(' ');
+        }
+
+        attron(A_BOLD);
+        move(6, 0);
+        printw("Use the arrow keys to set each AI's difficulty.");
+        move(7, 0);
+        printw("Press SPACE to start.");
+        attroff(A_BOLD);
+
+        refresh();
+
+        //input stuff
+        
+        int ch = getch();
+        switch(ch) {
+            case KEY_LEFT:
+                if(option == 0) {
+                    if(selection1 > 1) {
+                        selection1 -= 1;
+                    }
+                }
+                else if(option == 1) {
+                    if(selection2 > 1) {
+                        selection2 -= 1;
+                    }
+                }
+            break;
+            case KEY_RIGHT:
+                if(option == 0) {
+                    if(selection1 < 4) {
+                        selection1 += 1;
+                    }
+                }
+                else if(option == 1) {
+                    if(selection2 < 4) {
+                        selection2 += 1;
+                    }
+                }
+            break;
+            case KEY_UP:
+                if(option > 0) {
+                    option -= 1;
+                }
+            break;
+            case KEY_DOWN:
+                if(option < 1) {
+                    option += 1;
+                }
+            break;
+            case ' ':
+                runGame('b', selection1*2, selection2*2);
+                return;
+            break;
+        }
+    }
 }
 
 void mainMenu() {
@@ -376,7 +484,9 @@ void mainMenu() {
 
         attron(A_BOLD);
         move(8, 0);
-        printw("Use the arrow keys to select a game type and press SPACE");
+        printw("Use the arrow keys to select a game type.");
+        move(9, 0);
+        printw("Press SPACE to continue.");
         attroff(A_BOLD);
 
         refresh();
