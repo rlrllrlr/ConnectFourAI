@@ -20,23 +20,23 @@ void printBoard(Board given_board) {
     //vertical bars
     for(int i = 0; i < 6; ++i) {
         for(int j = 0; j < 8; ++j) {
-            wmove(win, 2*i+1, 4*j);
-            waddch(win, '|');
+            move(2*i+1, 4*j);
+            addch('|');
         }
     }
 
     //horizontal bars
     for(int j = 1; j < 7; ++j) {
         for(int i = 0; i < 29; ++i) {
-            wmove(win, 2*j, i);
-            waddch(win, '-');
+            move(2*j, i);
+            addch('-');
         }
     }
 
     //board pieces
     for(int i = 0; i < 7; ++i) {
         for(int j = 0; j < 6; ++j) {
-            mvwaddch(win, 1+2*j, 2+4*i, given_board.value[i][j]);
+            mvaddch(1+2*j, 2+4*i, given_board.value[i][j]);
         }
     }
 }
@@ -142,27 +142,29 @@ char winner(Board given_board) {
 
 void init(void) {
     initscr();
+    start_color();
     cbreak();
     noecho();
     keypad(stdscr, true);
     curs_set(0);
-
-    int h, w;
-    getmaxyx(stdscr, h, w);
-    win = newwin(h, w, 0, 0);
-    
+   
     nodelay(stdscr, TRUE);
 }
 
-void runGame(Board &given_board, char who_is_ai) {
+void runGame(char who_is_ai, int x_ai_level=0, int o_ai_level=0) {
     char whose_turn = 'X'; //X turn first
     int ch;
     int xpos = 2;
 
+    clear();
+
+    Board given_board = Board();
+    initBoard(given_board);
+
     while(true) {
         //make sure it's not the AI's turn
         if(whose_turn == who_is_ai || who_is_ai == 'b') {
-            int status = makeMinimaxMoveAI(given_board, whose_turn);
+            int status = makeMinimaxMoveAI(given_board, whose_turn, (whose_turn=='X')?x_ai_level:o_ai_level);
 
             if(status == 0) {
                 whose_turn = (whose_turn == 'X')?'O':'X';
@@ -206,32 +208,213 @@ void runGame(Board &given_board, char who_is_ai) {
                 }
 
                 printBoard(given_board);
-                wmove(win, 15, 0);
-                wprintw(win, "Congratulations Player ");
-                waddch(win, victory);
+                move(15, 0);
+                printw("Congratulations Player ");
+                addch(victory);
             
-                wmove(win, 16, 0);
-                wprintw(win, "Press space to exit...");
+                move(16, 0);
+                printw("Press space to exit...");
     
-                wrefresh(win);
+                refresh();
             }
         }
         else {
+            //print board and piece
             printBoard(given_board);
-            mvwaddch(win, 0, xpos, whose_turn);
-            wrefresh(win);
+            mvaddch(0, xpos, whose_turn);
+
+            refresh();
+        }
+    }
+}
+
+void PvCMenu() {
+    clear();
+
+    int option = 0;   
+    int selection1 = 1;
+    int selection2 = 0;
+
+    while(true) {
+        // output stuff
+        attron(A_BOLD | A_UNDERLINE);
+        move(0, 0);
+        printw("Player v Computer Menu");
+        attroff(A_BOLD | A_UNDERLINE);
+
+        move(2, 0);
+        printw("Difficulty: ");
+
+        for(int i = 1; i <= 4; ++i) {
+            if(selection1 == i && option == 0) {
+                attron(A_REVERSE);
+            }
+            else if(selection1 == i && option == 1) {
+                attron(A_DIM | A_UNDERLINE);
+            }
+            addch((char)(48+i));
+            attroff(A_REVERSE | A_DIM | A_UNDERLINE);
+
+            addch(' ');
+        }
+
+        move(4, 0);
+        printw("Computer (X goes first): ");
+
+        if(selection2 == 0 && option == 1) {
+            attron(A_REVERSE);
+        }
+        else if(selection2 == 0 && option == 0) {
+            attron(A_DIM | A_UNDERLINE);
+        }
+        printw("X");
+        attroff(A_DIM | A_UNDERLINE | A_REVERSE);
+
+        printw(" ");
+
+        if(selection2 == 1 && option == 1) {
+            attron(A_REVERSE);
+        }
+        else if(selection2 == 1 && option == 0) {
+            attron(A_DIM | A_UNDERLINE);
+        }
+        printw("O");
+        attroff(A_DIM | A_UNDERLINE | A_REVERSE);
+
+        move(6, 0);
+        attron(A_BOLD);
+        printw("Use the arrow keys to set AI difficulty and symbol.");
+        move(7, 0);
+        printw("Press SPACE to start.");
+        attroff(A_UNDERLINE);
+
+        refresh();
+
+        //input stuff
+        int ch = getch();
+        switch(ch) {
+            case KEY_RIGHT:
+                if(option == 0) {
+                    if(selection1 < 4) {
+                        selection1 += 1;
+                    }
+                }
+                else if(option == 1) {
+                    if(selection2 < 1) {
+                        selection2 += 1;
+                    }
+                }
+            break;
+            case KEY_LEFT:
+                if(option == 0) {
+                    if(selection1 > 0) {
+                        selection1 -= 1;
+                    }
+                }
+                else if(option == 1) {
+                    if(selection2 > 0) {
+                        selection2 -= 1;
+                    }
+                }
+            break;
+            case KEY_DOWN:
+                if(option < 1) {
+                    option += 1;
+                }
+            break;
+            case KEY_UP:
+                if(option > 0) {
+                    option -= 1;
+                }
+            break;
+            case ' ':
+                if(selection2 == 0) {
+                    runGame('X', selection1*2, 0);
+                }
+                else if(selection2 == 1) {
+                    runGame('O', 0, selection1*2);
+                }
+                return;
+            break;
+        }
+    }
+}
+
+void CvCMenu() {
+}
+
+void mainMenu() {
+    int selection = 0;
+    while(true) {
+        /* output stuff */
+        //title
+        attron(A_UNDERLINE | A_BOLD);
+        move(0, 0);
+        printw("Main Menu");
+        attroff(A_UNDERLINE | A_BOLD);
+
+        if(selection == 0) {
+            attron(A_REVERSE);
+        }
+        move(2, 0);
+        printw("Player v Player");
+        attroff(A_REVERSE);
+
+        if(selection == 1) {
+            attron(A_REVERSE);
+        }
+        move(4, 0);
+        printw("Player v Computer");
+        attroff(A_REVERSE);
+
+        if(selection == 2) {
+            attron(A_REVERSE);
+        }
+        move(6, 0);
+        printw("Computer v Computer");
+        attroff(A_REVERSE);
+
+        attron(A_BOLD);
+        move(8, 0);
+        printw("Use the arrow keys to select a game type and press SPACE");
+        attroff(A_BOLD);
+
+        refresh();
+
+        /* input stuff */
+        int ch = getch();
+        switch(ch) {
+            case KEY_DOWN:
+                if(selection < 2) {
+                    selection += 1;
+                }
+            break;
+            case KEY_UP:
+                if(selection > 0) {
+                    selection -= 1;
+                }
+            break;
+            case ' ':
+                if(selection == 0) {
+                    runGame(' ');
+                }
+                if(selection == 1) {
+                    PvCMenu();
+                }
+                if(selection == 2) {
+                    CvCMenu();
+                }
+
+                return;
+            break;
         }
     }
 }
 
 int main(void) {
-    char who_is_ai = 'O'; //symbol of AI player. ' ' if no AI and 'b' if both AI.
-    Board main_board;
-
     init();
 
-    initBoard(main_board);
-    runGame(main_board, who_is_ai);
+    mainMenu();
 
     endwin();
     return 0;

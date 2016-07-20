@@ -3,7 +3,7 @@
 #include <cmath>
 using namespace std;
 
-#define STEPS_AHEAD 8
+#define STEPS_AHEAD 4
 
 // + ratings are good for player and - ratings are good for opponent
 int rateBoard(Board given_board, char player) {
@@ -201,8 +201,8 @@ MiniMaxPack minimaxSearch(Board given, char player, int depth, bool isMaximizing
     }
 }
 
-int makeMinimaxMoveAI(Board &given_board, char player) {
-    MiniMaxPack returned = minimaxSearch(given_board, player, STEPS_AHEAD, true);
+int makeMinimaxMoveAI(Board &given_board, char player, int steps_ahead) {
+    MiniMaxPack returned = minimaxSearch(given_board, player, steps_ahead, true);
     cout << "chose move with worst case scenario: " << returned.score << endl;
     usleep(1000000);
     dropIntoCol(given_board, player, returned.col);
