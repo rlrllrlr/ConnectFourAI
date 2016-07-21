@@ -1,7 +1,11 @@
-#include <iostream>
-#include <unistd.h>
-#include <cmath>
-using namespace std;
+struct Board {
+    char value[7][6];
+};
+
+bool canDropIntoCol(Board given_board, int col);
+int dropIntoCol(Board &given_board, char player, int col);
+
+char winner(Board given_board);
 
 // + ratings are good for player and - ratings are good for opponent
 int rateBoard(Board given_board, char player) {
